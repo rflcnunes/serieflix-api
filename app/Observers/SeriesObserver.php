@@ -3,11 +3,20 @@
 namespace App\Observers;
 
 use App\Mail\SeriesCreate;
+use App\Mail\SeriesDeleted;
 use App\Mail\SeriesUpdated;
+use App\Models\Historic;
 use App\Models\Series;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Traits\HistoricInsertDatabaseTrait;
+
+use NotificationChannels\Telegram\TelegramChannel;
+use App\Notifications\CreateSeriesTelegramNotification;
+use App\Notifications\UpdatedSeriesTelegramNotification;
+use App\Notifications\DeletedSeriesTelegramNotification;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Notification;
 
 class SeriesObserver
 {
@@ -30,6 +39,14 @@ class SeriesObserver
             $series->series_seasons,
             $series->series_episodes
         ));
+
+        Notification::route('telegram', Config::get('services.telegram_id'))
+            ->notify(new CreateSeriesTelegramNotification(
+                $series->series_code,
+                $series->series_name,
+                $series->series_seasons,
+                $series->series_episodes
+            ));
     }
 
     /**
@@ -49,6 +66,14 @@ class SeriesObserver
             $series->series_seasons,
             $series->series_episodes
         ));
+
+        Notification::route('telegram', Config::get('services.telegram_id'))
+            ->notify(new UpdatedSeriesTelegramNotification(
+                $series->series_code,
+                $series->series_name,
+                $series->series_seasons,
+                $series->series_episodes
+            ));
     }
 
     /**
@@ -61,5 +86,20 @@ class SeriesObserver
     {
         Log::info('Observer: deleted');
         $this->insertDatabaseDeleteObject($series);
+
+//        Mail::to('clarkbass.dev@gmail.com')->send(new SeriesDeleted(
+//            $series->series_code,
+//            $series->series_name,
+//            $series->series_seasons,
+//            $series->series_episodes
+//        ));
+
+        Notification::route('telegram', Config::get('services.telegram_id'))
+            ->notify(new DeletedSeriesTelegramNotification(
+                $series->series_code,
+                $series->series_name,
+                $series->series_seasons,
+                $series->series_episodes
+            ));
     }
 }

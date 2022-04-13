@@ -15,6 +15,6 @@ class SeriesSeeder extends Seeder
      */
     public function run()
     {
-        Series::factory()->count(5)->create();
+        Series::factory()->count(1)->create();
     }
 }

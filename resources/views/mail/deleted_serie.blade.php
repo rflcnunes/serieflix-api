@@ -4,5 +4,4 @@
     - Nome da série: {{ $series_name }}
     - Quantidade de temporadas: {{ $series_seasons }}
     - Quantidade de episódios: {{ $series_episodes }}
-    - Deletado em: {{ $deleted_at }}
 @endcomponent
